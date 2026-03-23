@@ -1,0 +1,18 @@
+boomerang:
+  auth:
+    # Must match BoomerangIntegrationTestBase.TEST_JWT_SECRET
+    jwt-secret: boomerang-test-secret-key-min-32-chars!!
+  callback:
+    skip-validation: true   # WireMock runs on localhost
+  idempotency:
+    cooldown-seconds: 10    # short window so idempotency tests don't have to wait
+  webhook:
+    max-attempts: 3         # fewer retries keeps failure-path tests fast
+    initial-backoff-ms: 200
+    max-backoff-ms: 500
+  thread-pool:
+    core-size: 2
+    max-size: 4
+    queue-capacity: 20
+  job-ttl-days: 1
+  failed-webhook-ttl-days: 1

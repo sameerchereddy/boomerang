@@ -1,0 +1,42 @@
+spring:
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  # Disable Spring Security's default form-login page (Boomerang provides its own JWT filter)
+  security:
+    user:
+      name: ignored
+      password: ignored
+
+server:
+  port: 8080
+
+boomerang:
+  auth:
+    # Development-only secret — must be at least 32 characters.
+    # Inject BOOMERANG_JWT_SECRET in production via environment variable.
+    jwt-secret: ${BOOMERANG_JWT_SECRET:boomerang-dev-secret-key-min-32-chars!!}
+
+  callback:
+    # skip-validation bypasses SSRF checks — local development only, never use in production
+    skip-validation: true
+    allowed-domains:
+      - webhook.site          # useful for manual testing
+      - requestbin.com
+
+  idempotency:
+    cooldown-seconds: 60      # short window for demo purposes
+
+  thread-pool:
+    core-size: 2
+    max-size: 5
+    queue-capacity: 20
+
+  job-ttl-days: 1
+  failed-webhook-ttl-days: 7
+
+logging:
+  level:
+    io.github.boomerang: DEBUG

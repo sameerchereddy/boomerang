@@ -1,0 +1,31 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  sample:
+    build:
+      context: ..
+      dockerfile: boomerang-sample/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      BOOMERANG_JWT_SECRET: boomerang-dev-secret-key-min-32-chars!!
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  redis-data:
