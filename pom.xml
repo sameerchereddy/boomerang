@@ -42,10 +42,10 @@
     </scm>
 
     <distributionManagement>
-        <repository>
+        <snapshotRepository>
             <id>central</id>
             <url>https://central.sonatype.com/api/v1/publisher/upload</url>
-        </repository>
+        </snapshotRepository>
     </distributionManagement>
 
     <modules>
@@ -192,7 +192,7 @@
         </pluginManagement>
     </build>
 
-    <!-- Activate sources + javadoc + GPG signing only when releasing -->
+    <!-- Activate sources + javadoc + GPG signing + Central upload only when releasing -->
     <profiles>
         <profile>
             <id>release</id>
@@ -209,6 +209,18 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                    <!-- Sonatype Central Portal publisher — replaces the old OSSRH deploy approach -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.7.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
