@@ -188,6 +188,30 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <!-- Flatten — produces effective POM with resolved versions and inherited metadata.
+                     Required by Maven Central so child POMs include url/license/scm/developers
+                     and dependency versions are not left as ${...} references. -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>1.6.0</version>
+                    <configuration>
+                        <flattenMode>ossrh</flattenMode>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>flatten</id>
+                            <phase>process-resources</phase>
+                            <goals><goal>flatten</goal></goals>
+                        </execution>
+                        <execution>
+                            <id>flatten.clean</id>
+                            <phase>clean</phase>
+                            <goals><goal>clean</goal></goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -209,6 +233,11 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                    <!-- Flatten effective POM so child modules satisfy Maven Central metadata requirements -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>flatten-maven-plugin</artifactId>
                     </plugin>
                     <!-- Sonatype Central Portal publisher — replaces the old OSSRH deploy approach -->
                     <plugin>
