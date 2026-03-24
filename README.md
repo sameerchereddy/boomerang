@@ -1,5 +1,8 @@
 # Boomerang
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.sameerchereddy/boomerang-starter?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.sameerchereddy/boomerang-starter)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+
 Like a boomerang — you throw something out and it comes back to you.
 
 You POST a request. Boomerang returns a `202` in under 50 ms. Your handler runs in the background. When it's done, the result flies back to whatever URL you gave it. That's it.

@@ -11,6 +11,9 @@ target/
 *.swo
 
 
+# Docs (medium posts, drafts, local assets)
+docs/
+
 # macOS
 .DS_Store
 
