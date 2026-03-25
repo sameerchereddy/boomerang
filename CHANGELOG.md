@@ -7,13 +7,21 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased]
+## [3.0.0] - 2026-03-25
 
-### Planned
-- **Poisoned-well protection (v3.0.0):** Message versioning via a `messageVersion` field on
-  `BoomerangRequest`, surfaced in `SyncContext`. Handlers will be able to declare which versions
-  they support so the framework can reject incompatible messages mid-queue rather than passing
-  them to code that cannot interpret them.
+### Added
+- **Poisoned-well protection** — new optional `messageVersion` field on `BoomerangRequest`
+  (e.g. `"v1"`, `"v2"`). Stored with the job and surfaced in `SyncContext#getMessageVersion()`
+  so handlers can detect and adapt to payload schema changes mid-queue. When an application is
+  deployed while older jobs are still queued, the handler can inspect the version and branch
+  accordingly rather than silently misinterpreting a stale payload.
+
+### Changed
+- `SyncContext` gains a `messageVersion` field (`String`, nullable).
+- `BoomerangRequest` gains a `messageVersion` field (`String`, max 64 chars, nullable).
+- `BoomerangJobRecord` gains a `messageVersion` field persisted in Redis.
+
+---
 
 ---
 

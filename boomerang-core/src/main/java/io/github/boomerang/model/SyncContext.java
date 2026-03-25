@@ -34,4 +34,24 @@ public class SyncContext {
      */
     @Nullable
     private final JsonNode payload;
+
+    /**
+     * Caller-supplied schema version from {@link BoomerangRequest#getMessageVersion()},
+     * e.g. {@code "v1"}, {@code "v2"}. {@code null} when the caller did not include a
+     * version. Handlers can inspect this to detect and adapt to payload schema changes
+     * mid-queue, avoiding silent data corruption when an application is deployed while
+     * jobs of an older schema are still queued (the "poisoned well" scenario).
+     *
+     * <p>Example:
+     * <pre>{@code
+     * String version = ctx.getMessageVersion(); // "v1", "v2", or null
+     * if ("v2".equals(version)) {
+     *     // handle new schema
+     * } else {
+     *     // handle legacy schema
+     * }
+     * }</pre>
+     */
+    @Nullable
+    private final String messageVersion;
 }

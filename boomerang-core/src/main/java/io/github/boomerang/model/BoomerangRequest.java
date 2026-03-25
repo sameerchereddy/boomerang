@@ -51,4 +51,15 @@ public class BoomerangRequest {
      */
     @Nullable
     private JsonNode payload;
+
+    /**
+     * Optional schema version for the payload, e.g. {@code "v1"}, {@code "v2"}.
+     * Stored with the job and surfaced in {@link SyncContext#getMessageVersion()} so
+     * handlers can detect and adapt to schema changes mid-queue, avoiding the
+     * "poisoned well" scenario where old messages are processed by code that no longer
+     * understands their shape.
+     */
+    @Nullable
+    @Size(max = 64)
+    private String messageVersion;
 }

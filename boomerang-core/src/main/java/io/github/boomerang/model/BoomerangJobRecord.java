@@ -32,6 +32,9 @@ public class BoomerangJobRecord {
     /** Raw JSON string of the caller-supplied payload, or {@code null} if none was provided. */
     private String payload;
 
+    /** Caller-supplied schema version string, or {@code null} if not provided. */
+    private String messageVersion;
+
     /**
      * Produces a lightweight {@link BoomerangJobStatus} view suitable for the status
      * polling endpoint.
@@ -76,6 +79,9 @@ public class BoomerangJobRecord {
 
         String payload = getString(data, "payload");
         record.setPayload((payload != null && !payload.isBlank()) ? payload : null);
+
+        String messageVersion = getString(data, "messageVersion");
+        record.setMessageVersion((messageVersion != null && !messageVersion.isBlank()) ? messageVersion : null);
 
         return record;
     }
