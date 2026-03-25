@@ -2,6 +2,7 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.sameerchereddy/boomerang-starter?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.sameerchereddy/boomerang-starter)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Changelog](https://img.shields.io/badge/changelog-CHANGELOG.md-informational)](CHANGELOG.md)
 
 Like a boomerang — you throw something out and it comes back to you.
 
@@ -44,11 +45,13 @@ In each case the pattern is the same: POST a request, get a `202` back instantly
 
 **1. Add the dependency**
 
+> Replace `VERSION` with the latest version shown in the Maven Central badge above.
+
 ```xml
 <dependency>
     <groupId>io.github.sameerchereddy</groupId>
     <artifactId>boomerang-starter</artifactId>
-    <version>1.0.0</version>
+    <version>VERSION</version>
 </dependency>
 ```
 
@@ -74,12 +77,19 @@ public class ReportHandler {
 
     @BoomerangHandler
     public Map<String, Object> generate(SyncContext ctx) {
-        // ctx.getJobId()    — unique job id
-        // ctx.getCallerId() — JWT sub claim (who requested it)
-        // ctx.getPayload()  — arbitrary JSON from the request body
-        //                     e.g. { "reportType": "monthly-revenue", "month": "2026-02" }
+        // ctx.getJobId()          — JobId value object; call .toString() or .value() for the raw string
+        // ctx.getCallerId()       — JWT sub claim (who requested it)
+        // ctx.getTriggeredAt()    — Instant the worker picked up this job
+        // ctx.getPayload()        — JsonNode of the caller-supplied payload, or null if none was sent
+        // ctx.getMessageVersion() — caller-supplied schema version string, or null if not sent
+        //                           use this to handle payload shape changes safely mid-queue
 
-        String reportUrl = reportService.generate(ctx.getPayload());
+        JsonNode payload = ctx.getPayload();
+        String version = ctx.getMessageVersion(); // e.g. "v1", "v2", or null
+
+        String reportType = payload != null ? payload.get("reportType").asText() : "default";
+
+        String reportUrl = reportService.generate(reportType);
         return Map.of("reportUrl", reportUrl, "generatedBy", ctx.getCallerId());
     }
 }
@@ -113,10 +123,22 @@ curl -X POST http://localhost:8080/reports \
   -H "Content-Type: application/json" \
   -d '{
     "callbackUrl": "https://your-service.example.com/hooks/report-ready",
+    "callbackSecret": "optional-hmac-secret-min-32-chars!!",
+    "idempotencyKey": "optional-dedup-key",
     "payload": { "reportType": "monthly-revenue", "month": "2026-02" }
   }'
 # → 202 { "jobId": "a1b2c3..." }
 ```
+
+### Request body fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `callbackUrl` | `string` | Yes | HTTPS URL to POST the result to once the job completes |
+| `callbackSecret` | `string` | No | Min 32 chars. When present, Boomerang adds `X-Signature-SHA256` to the callback |
+| `idempotencyKey` | `string` | No | Max 128 chars. Re-using a key within the cooldown window returns `409 Conflict` |
+| `payload` | `object` | No | Arbitrary JSON passed through to `SyncContext#getPayload()` as a `JsonNode` |
+| `messageVersion` | `string` | No | Max 64 chars. Schema version of the payload (e.g. `"v1"`). Available in `SyncContext#getMessageVersion()` so handlers can adapt to schema changes mid-queue |
 
 Your callback receives a POST when the job completes:
 
@@ -223,7 +245,7 @@ Add `boomerang-tests` as a test dependency to get a base class with a containeri
 <dependency>
     <groupId>io.github.sameerchereddy</groupId>
     <artifactId>boomerang-tests</artifactId>
-    <version>1.0.0</version>
+    <version>VERSION</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -262,7 +284,7 @@ See [`boomerang-tests/README.md`](boomerang-tests/README.md) for full details.
 Tag a commit — the release pipeline handles the rest:
 
 ```bash
-git tag v1.0.0 && git push origin v1.0.0
+git tag vX.Y.Z && git push origin vX.Y.Z
 ```
 
 Required GitHub secrets: `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_TOKEN`, `GPG_PRIVATE_KEY`, `GPG_PASSPHRASE`.

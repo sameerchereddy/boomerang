@@ -156,7 +156,7 @@ public class BoomerangWorker {
                 }
             }
 
-            SyncContext ctx = new SyncContext(new JobId(jobId), job.getOwnerId(), Instant.now(), payload);
+            SyncContext ctx = new SyncContext(new JobId(jobId), job.getOwnerId(), Instant.now(), payload, job.getMessageVersion());
             Object result   = handlerRegistry.invoke(ctx);
 
             jobStore.updateStatus(jobId, "DONE", result, null);
