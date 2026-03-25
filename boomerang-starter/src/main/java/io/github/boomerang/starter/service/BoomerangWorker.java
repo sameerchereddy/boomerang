@@ -1,6 +1,9 @@
 package io.github.boomerang.starter.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.boomerang.model.BoomerangJobRecord;
+import io.github.boomerang.model.JobId;
 import io.github.boomerang.model.SyncContext;
 import io.github.boomerang.store.BoomerangJobStore;
 import io.github.boomerang.starter.metrics.BoomerangMetrics;
@@ -44,6 +47,7 @@ public class BoomerangWorker {
     private final BoomerangHandlerRegistry handlerRegistry;
     private final BoomerangWebhookService webhookService;
     private final BoomerangMetrics        metrics;
+    private final ObjectMapper            objectMapper;
     private final Executor                taskExecutor;
     private final AtomicBoolean           running = new AtomicBoolean(false);
 
@@ -52,12 +56,14 @@ public class BoomerangWorker {
                            BoomerangHandlerRegistry handlerRegistry,
                            BoomerangWebhookService webhookService,
                            BoomerangMetrics metrics,
+                           @Qualifier("boomerangObjectMapper") ObjectMapper objectMapper,
                            @Qualifier("boomerangTaskExecutor") Executor taskExecutor) {
         this.redisTemplate  = redisTemplate;
         this.jobStore       = jobStore;
         this.handlerRegistry = handlerRegistry;
         this.webhookService = webhookService;
         this.metrics        = metrics;
+        this.objectMapper   = objectMapper;
         this.taskExecutor   = taskExecutor;
     }
 
@@ -141,7 +147,16 @@ public class BoomerangWorker {
         try {
             jobStore.updateStatus(jobId, "IN_PROGRESS", null, null);
 
-            SyncContext ctx = new SyncContext(jobId, job.getOwnerId(), Instant.now());
+            JsonNode payload = null;
+            if (job.getPayload() != null && !job.getPayload().isBlank()) {
+                try {
+                    payload = objectMapper.readTree(job.getPayload());
+                } catch (Exception e) {
+                    log.warn("Could not parse payload JSON for job {} — proceeding with null payload: {}", jobId, e.getMessage());
+                }
+            }
+
+            SyncContext ctx = new SyncContext(new JobId(jobId), job.getOwnerId(), Instant.now(), payload);
             Object result   = handlerRegistry.invoke(ctx);
 
             jobStore.updateStatus(jobId, "DONE", result, null);

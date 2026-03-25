@@ -164,9 +164,10 @@ public class BoomerangAutoConfiguration {
                                             BoomerangHandlerRegistry handlerRegistry,
                                             BoomerangWebhookService webhookService,
                                             BoomerangMetrics metrics,
+                                            @Qualifier("boomerangObjectMapper") ObjectMapper objectMapper,
                                             @Qualifier("boomerangTaskExecutor") Executor taskExecutor) {
         return new BoomerangWorker(redisTemplate, jobStore, handlerRegistry,
-                webhookService, metrics, taskExecutor);
+                webhookService, metrics, objectMapper, taskExecutor);
     }
 
     @Bean
