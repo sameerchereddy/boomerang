@@ -29,6 +29,9 @@ public class BoomerangJobRecord {
     private String result;
     private String error;
 
+    /** Raw JSON string of the caller-supplied payload, or {@code null} if none was provided. */
+    private String payload;
+
     /**
      * Produces a lightweight {@link BoomerangJobStatus} view suitable for the status
      * polling endpoint.
@@ -70,6 +73,9 @@ public class BoomerangJobRecord {
 
         String error = getString(data, "error");
         record.setError((error != null && !error.isBlank()) ? error : null);
+
+        String payload = getString(data, "payload");
+        record.setPayload((payload != null && !payload.isBlank()) ? payload : null);
 
         return record;
     }

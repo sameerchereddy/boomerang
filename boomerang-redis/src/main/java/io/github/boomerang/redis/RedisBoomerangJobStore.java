@@ -49,6 +49,7 @@ public class RedisBoomerangJobStore implements BoomerangJobStore {
         jobData.put("completedAt",    "");
         jobData.put("result",         "");
         jobData.put("error",          "");
+        jobData.put("payload",        req.getPayload() != null ? req.getPayload().toString() : "");
 
         String key = JOB_PREFIX + jobId;
         redisTemplate.opsForHash().putAll(key, jobData);

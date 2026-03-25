@@ -18,7 +18,7 @@ public class EchoSyncHandler {
     public Map<String, Object> handle(SyncContext ctx) throws InterruptedException {
         Thread.sleep(500);
         return Map.of(
-                "jobId",     ctx.getJobId(),
+                "jobId",     ctx.getJobId().toString(),
                 "callerId",  ctx.getCallerId(),
                 "echoedAt",  Instant.now().toString()
         );

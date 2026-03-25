@@ -1,14 +1,13 @@
 package io.github.boomerang.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.boomerang.validation.ValidCallbackUrl;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * Incoming request body for {@code POST /sync}. All fields are optional — when
- * {@code callbackUrl} is absent the caller must poll {@code GET /sync/{jobId}} for the
- * result instead.
+ * Incoming request body for {@code POST /jobs}. All fields are optional except where noted.
  */
 @Data
 public class BoomerangRequest {
@@ -36,4 +35,20 @@ public class BoomerangRequest {
     @Nullable
     @Size(max = 128)
     private String idempotencyKey;
+
+    /**
+     * Arbitrary caller-supplied data. Stored alongside the job and surfaced in
+     * {@link SyncContext#getPayload()} when the handler is invoked, allowing callers
+     * to pass job-specific parameters without a separate lookup.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * {
+     *   "callbackUrl": "https://example.com/hook",
+     *   "payload": { "userId": 42, "reportType": "monthly" }
+     * }
+     * }</pre>
+     */
+    @Nullable
+    private JsonNode payload;
 }
