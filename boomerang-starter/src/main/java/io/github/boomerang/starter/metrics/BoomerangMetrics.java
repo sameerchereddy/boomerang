@@ -29,6 +29,8 @@ public class BoomerangMetrics {
     public final Counter webhookSuccesses;
     public final Counter webhookFailures;
     public final Counter poolRejections;
+    public final Counter workerInvocations;
+    public final Counter workerInvocationFailures;
     public final Timer   jobDuration;
     public final Timer   webhookDuration;
 
@@ -59,6 +61,14 @@ public class BoomerangMetrics {
 
         poolRejections = Counter.builder("boomerang.pool.rejections")
                 .description("Jobs rejected by the worker thread pool and re-queued for later processing")
+                .register(registry);
+
+        workerInvocations = Counter.builder("boomerang.worker.invocations")
+                .description("Standalone-mode jobs dispatched to a workerUrl")
+                .register(registry);
+
+        workerInvocationFailures = Counter.builder("boomerang.worker.invocation.failures")
+                .description("Standalone-mode worker invocations that failed after all retries")
                 .register(registry);
 
         jobDuration = Timer.builder("boomerang.job.duration")

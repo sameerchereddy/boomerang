@@ -62,4 +62,16 @@ public class BoomerangRequest {
     @Nullable
     @Size(max = 64)
     private String messageVersion;
+
+    /**
+     * HTTPS URL of the consumer's worker endpoint. When present, Boomerang operates in
+     * <em>standalone mode</em>: instead of invoking a local {@code @BoomerangHandler}
+     * method, it POSTs the job payload to this URL and captures the response body as the
+     * job result. Subject to the same SSRF allowlist as {@code callbackUrl}.
+     *
+     * <p>When absent, Boomerang falls back to <em>embedded mode</em> and invokes the
+     * registered {@code @BoomerangHandler} method within the same JVM.
+     */
+    @Nullable
+    private String workerUrl;
 }

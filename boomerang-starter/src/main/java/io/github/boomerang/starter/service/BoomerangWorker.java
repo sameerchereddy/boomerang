@@ -42,29 +42,32 @@ public class BoomerangWorker {
     private static final String PENDING_QUEUE = "boomerang-jobs:pending";
     private static final String JOB_PREFIX    = "boomerang-job:";
 
-    private final StringRedisTemplate     redisTemplate;
-    private final BoomerangJobStore       jobStore;
-    private final BoomerangHandlerRegistry handlerRegistry;
-    private final BoomerangWebhookService webhookService;
-    private final BoomerangMetrics        metrics;
-    private final ObjectMapper            objectMapper;
-    private final Executor                taskExecutor;
-    private final AtomicBoolean           running = new AtomicBoolean(false);
+    private final StringRedisTemplate       redisTemplate;
+    private final BoomerangJobStore         jobStore;
+    private final BoomerangHandlerRegistry  handlerRegistry;
+    private final BoomerangWebhookService   webhookService;
+    private final StandaloneWorkerInvoker   workerInvoker;
+    private final BoomerangMetrics          metrics;
+    private final ObjectMapper              objectMapper;
+    private final Executor                  taskExecutor;
+    private final AtomicBoolean             running = new AtomicBoolean(false);
 
     public BoomerangWorker(StringRedisTemplate redisTemplate,
                            BoomerangJobStore jobStore,
                            BoomerangHandlerRegistry handlerRegistry,
                            BoomerangWebhookService webhookService,
+                           StandaloneWorkerInvoker workerInvoker,
                            BoomerangMetrics metrics,
                            @Qualifier("boomerangObjectMapper") ObjectMapper objectMapper,
                            @Qualifier("boomerangTaskExecutor") Executor taskExecutor) {
-        this.redisTemplate  = redisTemplate;
-        this.jobStore       = jobStore;
+        this.redisTemplate   = redisTemplate;
+        this.jobStore        = jobStore;
         this.handlerRegistry = handlerRegistry;
-        this.webhookService = webhookService;
-        this.metrics        = metrics;
-        this.objectMapper   = objectMapper;
-        this.taskExecutor   = taskExecutor;
+        this.webhookService  = webhookService;
+        this.workerInvoker   = workerInvoker;
+        this.metrics         = metrics;
+        this.objectMapper    = objectMapper;
+        this.taskExecutor    = taskExecutor;
     }
 
     /**
@@ -157,7 +160,17 @@ public class BoomerangWorker {
             }
 
             SyncContext ctx = new SyncContext(new JobId(jobId), job.getOwnerId(), Instant.now(), payload, job.getMessageVersion());
-            Object result   = handlerRegistry.invoke(ctx);
+
+            Object result;
+            if (job.getWorkerUrl() != null && !job.getWorkerUrl().isBlank()) {
+                // Standalone mode: call the consumer's workerUrl over HTTP
+                log.debug("Job {} dispatching to workerUrl: {}", jobId, job.getWorkerUrl());
+                metrics.workerInvocations.increment();
+                result = workerInvoker.invoke(job.getWorkerUrl(), jobId, secret, ctx.getTriggeredAt());
+            } else {
+                // Embedded mode: invoke the registered @BoomerangHandler within this JVM
+                result = handlerRegistry.invoke(ctx);
+            }
 
             jobStore.updateStatus(jobId, "DONE", result, null);
             metrics.jobsCompleted.increment();
@@ -173,6 +186,9 @@ public class BoomerangWorker {
             log.error("Job {} failed: {}", jobId, e.getMessage(), e);
             jobStore.updateStatus(jobId, "FAILED", null, e.getMessage());
             metrics.jobsFailed.increment();
+            if (job.getWorkerUrl() != null && !job.getWorkerUrl().isBlank()) {
+                metrics.workerInvocationFailures.increment();
+            }
             metrics.jobDuration.record(Duration.between(start, Instant.now()));
 
             if (callbackUrl != null && !callbackUrl.isBlank()) {

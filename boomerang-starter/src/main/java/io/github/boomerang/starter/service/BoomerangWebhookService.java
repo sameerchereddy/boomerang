@@ -6,15 +6,11 @@ import io.github.boomerang.model.BoomerangPayload;
 import io.github.boomerang.redis.BoomerangFailedWebhookStore;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestClient;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 /**
@@ -104,13 +100,8 @@ public class BoomerangWebhookService {
     }
 
     private String hmacSha256(String body, String secret) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-            return Hex.encodeHexString(mac.doFinal(body.getBytes(StandardCharsets.UTF_8)));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to compute HMAC-SHA256 signature", e);
-        }
+        // Strip the "sha256=" prefix — callers append it themselves
+        return BoomerangHmacUtils.sign(body, secret).substring("sha256=".length());
     }
 
     private String toJson(Object value) {

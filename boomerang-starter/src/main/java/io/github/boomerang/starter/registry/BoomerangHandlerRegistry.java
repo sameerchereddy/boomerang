@@ -13,13 +13,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Scans the application context after startup for exactly one method annotated with
+ * Scans the application context after startup for a method annotated with
  * {@link BoomerangHandler} and holds a reference to it for reflective invocation by the
  * worker. Scanning is deferred to {@link ContextRefreshedEvent} so that all beans —
  * including those created by auto-configurations — are fully initialised before the scan.
  *
- * <p>Throws {@link IllegalStateException} at startup if zero or more than one handler
- * method is found.
+ * <p>Finding exactly one handler registers embedded mode. Finding zero handlers is
+ * permitted — the application is assumed to operate in standalone mode where jobs carry
+ * a {@code workerUrl}. Finding more than one handler throws {@link IllegalStateException}
+ * at startup.
  */
 @Slf4j
 public class BoomerangHandlerRegistry {
@@ -70,9 +72,9 @@ public class BoomerangHandlerRegistry {
         }
 
         if (foundMethod == null) {
-            throw new IllegalStateException(
-                    "@EnableBoomerang requires exactly one @BoomerangHandler method in the " +
-                    "application context. Please annotate your handler method with @BoomerangHandler.");
+            log.info("No @BoomerangHandler found — running in standalone mode. " +
+                     "All jobs must supply a workerUrl.");
+            return;
         }
 
         this.handlerBean   = foundBean;
@@ -87,9 +89,15 @@ public class BoomerangHandlerRegistry {
      * @return the handler's return value (may be {@code null} for void methods)
      * @throws Exception any exception thrown by the handler
      */
+    public boolean hasHandler() {
+        return handlerMethod != null;
+    }
+
     public Object invoke(SyncContext ctx) throws Exception {
         if (handlerMethod == null) {
-            throw new IllegalStateException("BoomerangHandlerRegistry has not been initialised yet");
+            throw new IllegalStateException(
+                    "No @BoomerangHandler registered. This job has no workerUrl — either add " +
+                    "a @BoomerangHandler method (embedded mode) or supply a workerUrl in the request.");
         }
         try {
             return handlerMethod.invoke(handlerBean, ctx);

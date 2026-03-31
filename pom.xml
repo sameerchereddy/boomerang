@@ -54,6 +54,7 @@
         <module>boomerang-starter</module>
         <module>boomerang-sample</module>
         <module>boomerang-tests</module>
+        <module>boomerang-standalone</module>
     </modules>
 
     <properties>

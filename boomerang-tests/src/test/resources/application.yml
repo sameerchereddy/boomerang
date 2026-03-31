@@ -16,3 +16,7 @@ boomerang:
     queue-capacity: 20
   job-ttl-days: 1
   failed-webhook-ttl-days: 1
+  worker:
+    max-attempts: 2         # fewer retries keeps failure-path tests fast
+    timeout-seconds: 10     # short timeout for test worker calls
+    max-response-size-bytes: 1048576  # 1 MB is plenty for test responses

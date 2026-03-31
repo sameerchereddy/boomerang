@@ -79,10 +79,14 @@ public class BoomerangController {
     public ResponseEntity<?> triggerSync(@Valid @RequestBody BoomerangRequest req,
                                          @AuthenticationPrincipal String callerId) {
 
-        // 1. SSRF allowlist check
+        // 1. SSRF allowlist checks
         if (req.getCallbackUrl() != null && !callbackUrlValidator.isAllowed(req.getCallbackUrl())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Callback URL not in allowlist"));
+        }
+        if (req.getWorkerUrl() != null && !callbackUrlValidator.isAllowed(req.getWorkerUrl())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Worker URL not in allowlist"));
         }
 
         // 2. Acquire per-caller idempotency lock (SET NX EX)

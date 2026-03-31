@@ -14,9 +14,12 @@ import io.github.boomerang.starter.registry.BoomerangHandlerRegistry;
 import io.github.boomerang.starter.security.BoomerangSecurityConfig;
 import io.github.boomerang.starter.service.BoomerangWebhookService;
 import io.github.boomerang.starter.service.BoomerangWorker;
+import io.github.boomerang.starter.service.StandaloneWorkerInvoker;
 import io.github.boomerang.starter.validation.BoomerangCallbackUrlValidator;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -75,6 +78,28 @@ public class BoomerangAutoConfiguration {
     public RestClient boomerangRestClient() {
         HttpComponentsClientHttpRequestFactory factory =
                 new HttpComponentsClientHttpRequestFactory(HttpClients.createDefault());
+        return RestClient.builder()
+                .requestFactory(factory)
+                .build();
+    }
+
+    /**
+     * Dedicated {@link RestClient} for worker invocations in standalone mode. Uses a
+     * separate Apache HttpClient configured with a long response timeout derived from
+     * {@code boomerang.worker.timeout-seconds} to support long-running jobs without
+     * affecting the webhook client's timeout settings.
+     */
+    @Bean("boomerangWorkerRestClient")
+    @ConditionalOnMissingBean(name = "boomerangWorkerRestClient")
+    public RestClient boomerangWorkerRestClient(BoomerangProperties props) {
+        int timeoutSeconds = props.getWorker().getTimeoutSeconds();
+        org.apache.hc.client5.http.config.RequestConfig requestConfig =
+                org.apache.hc.client5.http.config.RequestConfig.custom()
+                        .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
+                        .build();
+        HttpComponentsClientHttpRequestFactory factory =
+                new HttpComponentsClientHttpRequestFactory(
+                        HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build());
         return RestClient.builder()
                 .requestFactory(factory)
                 .build();
@@ -158,16 +183,28 @@ public class BoomerangAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(StandaloneWorkerInvoker.class)
+    public StandaloneWorkerInvoker standaloneWorkerInvoker(
+            @Qualifier("boomerangWorkerRestClient") RestClient workerRestClient,
+            @Qualifier("boomerangObjectMapper") ObjectMapper objectMapper,
+            BoomerangProperties props) {
+        BoomerangProperties.Worker w = props.getWorker();
+        return new StandaloneWorkerInvoker(workerRestClient, objectMapper,
+                w.getMaxAttempts(), w.getMaxResponseSizeBytes());
+    }
+
+    @Bean
     @ConditionalOnMissingBean(BoomerangWorker.class)
     public BoomerangWorker boomerangWorker(StringRedisTemplate redisTemplate,
                                             BoomerangJobStore jobStore,
                                             BoomerangHandlerRegistry handlerRegistry,
                                             BoomerangWebhookService webhookService,
+                                            StandaloneWorkerInvoker standaloneWorkerInvoker,
                                             BoomerangMetrics metrics,
                                             @Qualifier("boomerangObjectMapper") ObjectMapper objectMapper,
                                             @Qualifier("boomerangTaskExecutor") Executor taskExecutor) {
         return new BoomerangWorker(redisTemplate, jobStore, handlerRegistry,
-                webhookService, metrics, objectMapper, taskExecutor);
+                webhookService, standaloneWorkerInvoker, metrics, objectMapper, taskExecutor);
     }
 
     @Bean
