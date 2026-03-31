@@ -1,0 +1,24 @@
+services:
+  boomerang:
+    image: ghcr.io/sameerchereddy/boomerang:latest
+    ports:
+      - "8080:8080"
+    environment:
+      BOOMERANG_JWT_SECRET: dev-secret-change-me-must-be-32-chars
+      SPRING_DATA_REDIS_HOST: redis
+      BOOMERANG_CALLBACK_ALLOWED_DOMAINS: localhost,host.docker.internal
+      BOOMERANG_SKIP_URL_VALIDATION: "false"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

@@ -7,6 +7,46 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.0.0] - 2026-03-30
+
+### Added
+- **Standalone mode** — jobs can now carry a `workerUrl` field. When present, Boomerang
+  calls the consumer's HTTP endpoint instead of a local `@BoomerangHandler`, captures the
+  response body as the job result, and fires the webhook as normal. Enables thin SDK
+  integrations from any language.
+- **`BoomerangRequest.workerUrl`** — optional HTTPS URL of the consumer's worker endpoint.
+  Subject to the same SSRF allowlist as `callbackUrl`.
+- **`boomerang-standalone` module** — runnable fat-jar service for standalone deployments.
+  Consumers point their `workerUrl` at this service rather than embedding Boomerang.
+  Distributed as a Docker image (`ghcr.io/sameerchereddy/boomerang`).
+- **`Dockerfile`** — non-root Alpine image for production use.
+- **`docker-compose.yml`** — local development stack (Boomerang + Redis).
+- **GitHub Actions workflow** (`.github/workflows/docker-publish.yml`) — builds and pushes
+  the Docker image to GHCR on every `v*` tag.
+- **`boomerang.worker.*` config group** — configures worker invocation behaviour:
+  - `max-attempts` (default `3`) — retry attempts before marking job `FAILED`
+  - `timeout-seconds` (default `300`) — per-attempt HTTP response timeout
+  - `max-response-size-bytes` (default `10485760` / 10 MB) — response body size limit
+- **`boomerang.worker.invocations` metric** — counts standalone-mode dispatches.
+- **`boomerang.worker.invocation.failures` metric** — counts exhausted worker retries.
+- **`BoomerangIntegrationTestBase` worker helpers** — `stubWorkerUrl`, `stubWorkerUrlWithFailure`,
+  `verifyWorkerCalledWithJobId`, `verifyWorkerSignaturePresent` for standalone mode tests.
+- **`BoomerangStandaloneModeIT`** — 12-scenario compliance test suite for standalone mode.
+
+### Changed
+- `@BoomerangHandler` is no longer required at startup. Applications with no handler log
+  an info message and boot cleanly, operating in standalone-only mode. Jobs without a
+  `workerUrl` and without a registered handler will fail at processing time with a clear
+  error message.
+- `BoomerangWebhookService` HMAC logic extracted to package-private `BoomerangHmacUtils`
+  and reused by `StandaloneWorkerInvoker` — no behaviour change.
+- `BoomerangWorker` accepts `StandaloneWorkerInvoker` as a constructor dependency
+  (injected automatically via auto-configuration — no consumer changes required).
+- Dedicated `boomerangWorkerRestClient` bean with a configurable response timeout separate
+  from the webhook client.
+
+---
+
 ## [3.0.0] - 2026-03-25
 
 ### Added

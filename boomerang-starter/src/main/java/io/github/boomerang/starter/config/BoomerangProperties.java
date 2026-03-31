@@ -19,6 +19,7 @@ public class BoomerangProperties {
     private Idempotency idempotency = new Idempotency();
     private ThreadPool  threadPool  = new ThreadPool();
     private Webhook     webhook     = new Webhook();
+    private Worker      worker      = new Worker();
 
     /**
      * Base URL path for all Boomerang endpoints. Override to match your domain language —
@@ -107,5 +108,27 @@ public class BoomerangProperties {
          * Maximum backoff interval in milliseconds. Default: 30000 (30 s).
          */
         private long maxBackoffMs = 30_000;
+    }
+
+    @Data
+    public static class Worker {
+        /**
+         * Maximum number of HTTP call attempts to the {@code workerUrl} before the job
+         * is marked {@code FAILED}. Default: 3.
+         */
+        private int maxAttempts = 3;
+
+        /**
+         * Per-attempt HTTP response timeout in seconds when calling the {@code workerUrl}.
+         * Long-running jobs should increase this. Default: 300 (5 minutes).
+         */
+        private int timeoutSeconds = 300;
+
+        /**
+         * Maximum response body size in bytes accepted from the {@code workerUrl}.
+         * Responses exceeding this limit cause the job to be marked {@code FAILED}.
+         * Default: 10485760 (10 MB).
+         */
+        private int maxResponseSizeBytes = 10 * 1024 * 1024;
     }
 }

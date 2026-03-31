@@ -20,6 +20,7 @@ import java.util.Date;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Base class for Boomerang integration tests. Provides:
@@ -153,6 +154,55 @@ public abstract class BoomerangIntegrationTestBase {
      */
     protected void verifyCallbackReceived(String path) {
         wireMock.verify(1, postRequestedFor(urlEqualTo(path)));
+    }
+
+    /**
+     * Stubs the WireMock server to act as a {@code workerUrl} endpoint. Returns
+     * {@code 200 OK} with a fixed JSON result body. The caller must include this
+     * URL in the job request as {@code workerUrl}.
+     *
+     * @param path URL path, e.g. {@code "/internal/do-work"}
+     */
+    protected void stubWorkerUrl(String path) {
+        wireMock.stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"workerResult\":\"ok\"}")));
+    }
+
+    /**
+     * Stubs the {@code workerUrl} to always return a non-2xx response, causing the job
+     * to be marked {@code FAILED} after all retry attempts are exhausted.
+     *
+     * @param path URL path
+     */
+    protected void stubWorkerUrlWithFailure(String path) {
+        wireMock.stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse().withStatus(500).withBody("internal error")));
+    }
+
+    /**
+     * Verifies that the worker endpoint was called exactly once and that the request
+     * included the expected {@code X-Boomerang-Job-Id} header matching the given jobId.
+     *
+     * @param path  URL path that was stubbed as workerUrl
+     * @param jobId expected job identifier
+     */
+    protected void verifyWorkerCalledWithJobId(String path, String jobId) {
+        wireMock.verify(1, postRequestedFor(urlEqualTo(path))
+                .withHeader("X-Boomerang-Job-Id", equalTo(jobId)));
+    }
+
+    /**
+     * Verifies that the worker endpoint was called and that the request included an
+     * {@code X-Signature-SHA256} header (regardless of its value).
+     *
+     * @param path URL path that was stubbed as workerUrl
+     */
+    protected void verifyWorkerSignaturePresent(String path) {
+        wireMock.verify(postRequestedFor(urlEqualTo(path))
+                .withHeader("X-Signature-SHA256", matching("sha256=[0-9a-f]+")));
     }
 
     // -------------------------------------------------------------------------

@@ -70,11 +70,22 @@ Redis host/port are injected into the Spring context via `@DynamicPropertySource
 
 ### WireMock helpers
 
+**Callback (embedded mode)**
+
 | Method | Description |
 |--------|-------------|
 | `stubCallbackUrl(path)` | Stubs a POST to `path` — returns `200 OK` |
 | `stubCallbackUrlWithInitialFailures(path, n)` | Returns `503` for the first `n` calls, then `200` — useful for testing retry logic |
 | `verifyCallbackReceived(path)` | Asserts exactly one POST was received at `path` |
+
+**Worker (standalone mode)**
+
+| Method | Description |
+|--------|-------------|
+| `stubWorkerUrl(path)` | Stubs a POST to `path` — returns `200 OK` with `{"workerResult":"ok"}` |
+| `stubWorkerUrlWithFailure(path)` | Returns `500` on every call — triggers job `FAILED` path |
+| `verifyWorkerCalledWithJobId(path, jobId)` | Asserts worker was called once with matching `X-Boomerang-Job-Id` header |
+| `verifyWorkerSignaturePresent(path)` | Asserts `X-Signature-SHA256: sha256=<hex>` header was present |
 
 ### JWT helpers
 

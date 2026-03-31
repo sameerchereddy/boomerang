@@ -36,6 +36,12 @@ public class BoomerangJobRecord {
     private String messageVersion;
 
     /**
+     * Consumer's worker endpoint URL for standalone mode, or {@code null} for embedded mode.
+     * When non-null, Boomerang POSTs the job payload here instead of invoking a local handler.
+     */
+    private String workerUrl;
+
+    /**
      * Produces a lightweight {@link BoomerangJobStatus} view suitable for the status
      * polling endpoint.
      */
@@ -82,6 +88,9 @@ public class BoomerangJobRecord {
 
         String messageVersion = getString(data, "messageVersion");
         record.setMessageVersion((messageVersion != null && !messageVersion.isBlank()) ? messageVersion : null);
+
+        String workerUrl = getString(data, "workerUrl");
+        record.setWorkerUrl((workerUrl != null && !workerUrl.isBlank()) ? workerUrl : null);
 
         return record;
     }
