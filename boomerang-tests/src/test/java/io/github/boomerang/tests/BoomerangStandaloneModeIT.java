@@ -210,7 +210,7 @@ class BoomerangStandaloneModeIT extends BoomerangIntegrationTestBase {
     // -------------------------------------------------------------------------
 
     @Test
-    void duplicateCallerWithinCooldownReturns409() {
+    void duplicateCallerWithinCooldownReturns409() throws InterruptedException {
         stubWorkerUrl("/worker/idem");
         stubCallbackUrl("/hooks/idem");
         String token = generateToken("idem-standalone-" + System.nanoTime());
@@ -218,6 +218,10 @@ class BoomerangStandaloneModeIT extends BoomerangIntegrationTestBase {
 
         assertThat(rest.postForEntity("/jobs", req, Map.class).getStatusCode())
                 .isEqualTo(HttpStatus.ACCEPTED);
+
+        // brief pause to ensure the idempotency key is committed to Redis
+        // before the second request arrives — prevents a rare race in CI
+        Thread.sleep(100);
 
         assertThat(rest.postForEntity("/jobs", req, String.class).getStatusCode())
                 .isEqualTo(HttpStatus.CONFLICT);
