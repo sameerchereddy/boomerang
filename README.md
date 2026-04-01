@@ -267,6 +267,27 @@ See [`boomerang-tests/README.md`](boomerang-tests/README.md) for full details.
 
 ---
 
+## SDKs
+
+### Node.js — `@sameerchereddy/boomerang-client`
+
+[![npm](https://img.shields.io/npm/v/@sameerchereddy/boomerang-client)](https://www.npmjs.com/package/@sameerchereddy/boomerang-client)
+
+```bash
+npm install @sameerchereddy/boomerang-client
+```
+
+```typescript
+import { BoomerangClient } from '@sameerchereddy/boomerang-client';
+
+const client = new BoomerangClient({ baseUrl: 'http://localhost:8080', token: '<jwt>' });
+const { jobId } = await client.trigger({ callbackUrl: 'https://example.com/hooks/done' });
+```
+
+See [`boomerang-node/README.md`](boomerang-node/README.md) for full documentation including webhook middleware for Express and Fastify.
+
+---
+
 ## Modules
 
 | Module | Purpose |
@@ -276,6 +297,7 @@ See [`boomerang-tests/README.md`](boomerang-tests/README.md) for full details.
 | [`boomerang-starter`](boomerang-starter) | Auto-configuration, controller, service layer |
 | [`boomerang-sample`](boomerang-sample) | Runnable sample application |
 | [`boomerang-tests`](boomerang-tests) | Integration test base class for consumers |
+| [`boomerang-node`](boomerang-node) | Node.js SDK — `@sameerchereddy/boomerang-client` |
 
 ---
 
