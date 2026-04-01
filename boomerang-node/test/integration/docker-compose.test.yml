@@ -1,0 +1,32 @@
+services:
+  boomerang:
+    image: ghcr.io/sameerchereddy/boomerang:latest
+    ports:
+      - "8080:8080"
+    environment:
+      BOOMERANG_JWT_SECRET: test-secret-min-32-chars-long-here
+      SPRING_DATA_REDIS_HOST: redis
+      BOOMERANG_SKIP_URL_VALIDATION: "true"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  wiremock:
+    image: wiremock/wiremock:latest
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./wiremock:/home/wiremock

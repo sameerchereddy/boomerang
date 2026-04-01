@@ -1,0 +1,66 @@
+{
+  "name": "@sameerchereddy/boomerang-client",
+  "version": "0.1.0",
+  "description": "Thin Node.js SDK for the Boomerang async job service",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./express": {
+      "types": "./dist/middleware/express.d.ts",
+      "import": "./dist/middleware/express.mjs",
+      "require": "./dist/middleware/express.cjs"
+    },
+    "./fastify": {
+      "types": "./dist/middleware/fastify.d.ts",
+      "import": "./dist/middleware/fastify.mjs",
+      "require": "./dist/middleware/fastify.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "make test-integration",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "express": ">=4",
+    "fastify": ">=4",
+    "fastify-plugin": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "fastify-plugin": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/express": "^4",
+    "@types/node": "^20",
+    "express": "^4",
+    "fastify": "^4",
+    "fastify-plugin": "^4",
+    "tsup": "^8",
+    "typescript": "^5",
+    "vitest": "^1"
+  }
+}
