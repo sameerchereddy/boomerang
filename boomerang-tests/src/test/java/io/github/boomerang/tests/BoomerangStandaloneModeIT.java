@@ -210,18 +210,23 @@ class BoomerangStandaloneModeIT extends BoomerangIntegrationTestBase {
     // -------------------------------------------------------------------------
 
     @Test
-    void duplicateCallerWithinCooldownReturns409() throws InterruptedException {
-        stubWorkerUrl("/worker/idem");
+    void duplicateCallerWithinCooldownReturns409() {
+        // Use a slow worker so the idempotency lock is still held when the second
+        // request arrives — the lock is released in the worker's finally block, so a
+        // fast-responding worker would complete and release the lock before the duplicate
+        // request is made.
+        wireMock.stubFor(post(urlEqualTo("/worker/idem"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"workerResult\":\"ok\"}")
+                        .withFixedDelay(5_000)));
         stubCallbackUrl("/hooks/idem");
         String token = generateToken("idem-standalone-" + System.nanoTime());
         HttpEntity<String> req = new HttpEntity<>(body("/worker/idem", "/hooks/idem"), jsonHeaders(token));
 
         assertThat(rest.postForEntity("/jobs", req, Map.class).getStatusCode())
                 .isEqualTo(HttpStatus.ACCEPTED);
-
-        // brief pause to ensure the idempotency key is committed to Redis
-        // before the second request arrives — prevents a rare race in CI
-        Thread.sleep(100);
 
         assertThat(rest.postForEntity("/jobs", req, String.class).getStatusCode())
                 .isEqualTo(HttpStatus.CONFLICT);
