@@ -1,6 +1,7 @@
 # Boomerang
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.sameerchereddy/boomerang-starter?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.sameerchereddy/boomerang-starter)
+[![npm](https://img.shields.io/npm/v/@sameerchereddy/boomerang-client?label=npm)](https://www.npmjs.com/package/@sameerchereddy/boomerang-client)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Changelog](https://img.shields.io/badge/changelog-CHANGELOG.md-informational)](CHANGELOG.md)
 
