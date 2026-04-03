@@ -22,3 +22,11 @@ docs/
 
 # Logs
 *.log
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+dist/
+.pytest_cache/
