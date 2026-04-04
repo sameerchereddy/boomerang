@@ -1,0 +1,33 @@
+name: Go SDK
+
+on:
+  push:
+    paths:
+      - 'boomerang-go/**'
+  pull_request:
+    paths:
+      - 'boomerang-go/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: boomerang-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache-dependency-path: boomerang-go/go.sum
+
+      - name: Tidy
+        run: go mod tidy
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test -race -count=1 ./...
