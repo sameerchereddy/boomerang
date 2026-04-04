@@ -2,7 +2,7 @@
 
 Go SDK for the [Boomerang](https://github.com/sameerchereddy/boomerang) async webhook platform.
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/sameerchereddy/boomerang-go@v0.1.1.svg)](https://pkg.go.dev/github.com/sameerchereddy/boomerang-go@v0.1.1)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sameerchereddy/boomerang-go.svg)](https://pkg.go.dev/github.com/sameerchereddy/boomerang-go)
 [![GitHub release](https://img.shields.io/github/v/release/sameerchereddy/boomerang-go?label=release)](https://github.com/sameerchereddy/boomerang-go/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
