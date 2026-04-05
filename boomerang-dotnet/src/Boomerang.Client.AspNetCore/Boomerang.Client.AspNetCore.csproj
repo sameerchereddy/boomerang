@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Boomerang.Client.AspNetCore</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Version>0.1.0</Version>
+    <Authors>sameerchereddy</Authors>
+    <Description>ASP.NET Core filters for verifying Boomerang webhook HMAC signatures. Depends on Boomerang.Client.</Description>
+    <PackageId>Boomerang.Client.AspNetCore</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/sameerchereddy/boomerang</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/sameerchereddy/boomerang</PackageProjectUrl>
+    <Tags>boomerang;async;webhook;aspnetcore</Tags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Boomerang.Client\Boomerang.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\README.md" />
+  </ItemGroup>
+
+</Project>

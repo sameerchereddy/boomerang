@@ -1,7 +1,25 @@
-# Maven
+# Maven / Java
 target/
 *.class
 .flattened-pom.xml
+hs_err_pid*
+replay_pid*
+
+# .NET
+**/[Bb]in/
+**/[Oo]bj/
+**/[Ll]og/
+**/[Ll]ogs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+TestResults/
+[Bb]uild[Ll]og.*
+*.DotSettings.user
+boomerang-dotnet/artifacts/
+artifacts/
 
 # IDE
 .idea/
@@ -9,24 +27,36 @@ target/
 .vscode/
 *.swp
 *.swo
+*.swn
+*~
 
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Environment / secrets (local)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+dist/
+.pytest_cache/
+.ruff_cache/
 
 # Docs (medium posts, drafts, local assets)
 docs/
 
 # Private notes (not for public repo)
 .private/
-
-# macOS
-.DS_Store
-
-# Logs
-*.log
-
-# Python
-__pycache__/
-*.pyc
-*.egg-info/
-.venv/
-dist/
-.pytest_cache/
