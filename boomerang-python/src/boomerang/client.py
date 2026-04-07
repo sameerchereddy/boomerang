@@ -31,6 +31,8 @@ class BoomerangClient:
     def __init__(self, base_url: str, token: str) -> None:
         self._base_url = base_url.rstrip("/")
         self._token = token
+        self._client = httpx.Client()
+        self._async_client = httpx.AsyncClient()
 
     # --- headers ---
 
@@ -46,7 +48,10 @@ class BoomerangClient:
     def _raise_for_status(response: httpx.Response) -> None:
         if response.is_success:
             return
-        body = response.json() if response.content else {}
+        try:
+            body = response.json() if response.content else {}
+        except Exception:
+            body = {}
         message = body.get("error", response.reason_phrase or "Unknown error")
         error_cls = _STATUS_MAP.get(response.status_code)
         if error_cls is BoomerangConflictError:
@@ -74,7 +79,7 @@ class BoomerangClient:
             callback_secret=callback_secret,
             idempotency_key=idempotency_key,
         )
-        response = httpx.post(
+        response = self._client.post(
             f"{self._base_url}/sync",
             headers=self._auth_headers(),
             content=req.model_dump_json(by_alias=True, exclude_none=True),
@@ -84,7 +89,7 @@ class BoomerangClient:
 
     def poll(self, job_id: str) -> BoomerangJobStatus:
         """Poll job status via ``GET /sync/{jobId}``."""
-        response = httpx.get(
+        response = self._client.get(
             f"{self._base_url}/sync/{quote(job_id, safe='')}",
             headers=self._auth_headers(),
         )
@@ -107,21 +112,19 @@ class BoomerangClient:
             callback_secret=callback_secret,
             idempotency_key=idempotency_key,
         )
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self._base_url}/sync",
-                headers=self._auth_headers(),
-                content=req.model_dump_json(by_alias=True, exclude_none=True),
-            )
+        response = await self._async_client.post(
+            f"{self._base_url}/sync",
+            headers=self._auth_headers(),
+            content=req.model_dump_json(by_alias=True, exclude_none=True),
+        )
         self._raise_for_status(response)
         return BoomerangTriggerResponse.model_validate(response.json())
 
     async def poll_async(self, job_id: str) -> BoomerangJobStatus:
         """Async variant of :meth:`poll`."""
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{self._base_url}/sync/{quote(job_id, safe='')}",
-                headers=self._auth_headers(),
-            )
+        response = await self._async_client.get(
+            f"{self._base_url}/sync/{quote(job_id, safe='')}",
+            headers=self._auth_headers(),
+        )
         self._raise_for_status(response)
         return BoomerangJobStatus.model_validate(response.json())

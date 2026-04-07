@@ -26,7 +26,7 @@ def boomerang_webhook(secret: str) -> Callable:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             from flask import abort, request  # noqa: lazy import
 
-            signature = request.headers.get("X-Signature-SHA256")
+            signature = request.headers.get("x-signature-sha256")
             if not signature:
                 abort(401, description="Missing X-Signature-SHA256 header")
 
