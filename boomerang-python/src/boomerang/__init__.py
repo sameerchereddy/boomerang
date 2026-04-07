@@ -1,3 +1,4 @@
+from .client import BoomerangClient
 from .errors import (
     BoomerangConflictError,
     BoomerangError,
@@ -11,8 +12,11 @@ from .models import (
     BoomerangTriggerRequest,
     BoomerangTriggerResponse,
 )
+from .signature import BoomerangSignature
 
 __all__ = [
+    "BoomerangClient",
+    "BoomerangSignature",
     "BoomerangError",
     "BoomerangUnauthorizedError",
     "BoomerangForbiddenError",
