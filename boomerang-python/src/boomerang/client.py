@@ -34,6 +34,28 @@ class BoomerangClient:
         self._client = httpx.Client()
         self._async_client = httpx.AsyncClient()
 
+    # --- lifecycle ---
+
+    def close(self) -> None:
+        """Close the underlying connection pools."""
+        self._client.close()
+
+    async def aclose(self) -> None:
+        """Close the underlying async connection pool."""
+        await self._async_client.aclose()
+
+    def __enter__(self) -> BoomerangClient:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        self.close()
+
+    async def __aenter__(self) -> BoomerangClient:
+        return self
+
+    async def __aexit__(self, *args: object) -> None:
+        await self.aclose()
+
     # --- headers ---
 
     def _auth_headers(self) -> dict[str, str]:
