@@ -9,7 +9,7 @@ on:
       - 'boomerang-python/**'
 
 jobs:
-  test:
+  pytest:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,3 +31,12 @@ jobs:
 
       - name: Test
         run: pytest tests/ -v
+
+  test:
+    name: test
+    needs: pytest
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - run: |
+          if [ "${{ needs.pytest.result }}" != "success" ]; then exit 1; fi
