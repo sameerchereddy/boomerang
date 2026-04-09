@@ -25,6 +25,18 @@ public sealed class BoomerangClient : IDisposable
 
         if (options.HttpClient != null)
         {
+            if (options.HttpClient.BaseAddress != null)
+            {
+                var normalizedHttpBase = NormalizeBase(options.HttpClient.BaseAddress);
+                if (normalizedHttpBase != _normalizedBase)
+                {
+                    throw new ArgumentException(
+                        "When BoomerangClientOptions.HttpClient has BaseAddress set, it takes precedence for relative request URIs. " +
+                        "Ensure HttpClient.BaseAddress matches BaseUrl, or leave HttpClient.BaseAddress null.",
+                        nameof(options));
+                }
+            }
+
             _http = options.HttpClient;
             _disposeHttp = false;
         }

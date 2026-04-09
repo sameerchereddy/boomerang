@@ -71,6 +71,8 @@ public class HooksController : ControllerBase
 
 Use the **same** secret you passed as `callbackSecret` when enqueueing.
 
+`[BoomerangWebhook]` requires signed callbacks. Only use it when you pass `CallbackSecret`/`callbackSecret` at enqueue time; unsigned callbacks are rejected with `401`.
+
 ## Failed webhooks API
 
 `ListFailedWebhooksAsync`, `ReplayFailedWebhookAsync`, and `DeleteFailedWebhookAsync` map to the Java controller routes under the same `ApiPath`.
@@ -83,6 +85,8 @@ Set environment variables and run `dotnet test`:
 - `BOOMERANG_JWT_SECRET` — HS256 secret matching the running server
 
 If unset, the integration test exits immediately (pass).
+
+Integration scaffolding is in place, but full issue #10 coverage requires running these tests in CI against a live Boomerang instance.
 
 ## Build from source
 

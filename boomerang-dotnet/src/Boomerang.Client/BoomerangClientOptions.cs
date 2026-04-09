@@ -17,6 +17,10 @@ public sealed class BoomerangClientOptions
     /// <summary>Optional async token provider (e.g. MSAL). When set, overrides <see cref="Token"/>.</summary>
     public Func<CancellationToken, Task<string>>? GetTokenAsync { get; init; }
 
-    /// <summary>Optional shared <see cref="HttpClient"/> (caller owns lifetime when provided).</summary>
+    /// <summary>
+    /// Optional shared <see cref="HttpClient"/> (caller owns lifetime when provided).
+    /// When this client has <see cref="HttpClient.BaseAddress"/> set, that base takes precedence for relative request URIs.
+    /// Ensure it matches <see cref="BaseUrl"/> or leave <see cref="HttpClient.BaseAddress"/> null.
+    /// </summary>
     public HttpClient? HttpClient { get; init; }
 }

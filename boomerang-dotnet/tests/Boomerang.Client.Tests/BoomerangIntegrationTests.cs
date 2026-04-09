@@ -9,6 +9,7 @@ namespace Boomerang.Client.Tests;
 
 /// <summary>
 /// Set <c>BOOMERANG_TEST_BASE_URL</c> (e.g. http://localhost:8080/) and <c>BOOMERANG_JWT_SECRET</c> to run against a live Boomerang instance + Redis.
+/// Integration scaffolding is in place, but full issue #10 coverage requires running this test in CI against a live Boomerang instance.
 /// </summary>
 public class BoomerangIntegrationTests
 {
@@ -34,6 +35,7 @@ public class BoomerangIntegrationTests
 
         var trigger = await client.TriggerAsync(new BoomerangTriggerRequest
         {
+            // This test validates trigger+poll only, so a dummy callback URL is intentional.
             CallbackUrl = "https://webhook.site/00000000-0000-0000-0000-000000000000",
         });
 

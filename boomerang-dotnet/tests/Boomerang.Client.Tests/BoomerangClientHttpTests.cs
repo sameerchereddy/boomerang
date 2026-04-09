@@ -17,6 +17,43 @@ public class BoomerangClientHttpTests
         });
 
     [Fact]
+    public void Constructor_throws_when_external_httpclient_baseaddress_mismatches_options_baseurl()
+    {
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK));
+        var options = new BoomerangClientOptions
+        {
+            BaseUrl = new Uri("http://localhost:8080/"),
+            ApiPath = "/jobs",
+            Token = "test-token",
+            HttpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:9999/") },
+        };
+
+        var ex = Assert.Throws<ArgumentException>(() => new BoomerangClient(options));
+        Assert.Contains("BaseAddress", ex.Message);
+        Assert.Contains("BaseUrl", ex.Message);
+    }
+
+    [Fact]
+    public async Task Constructor_accepts_matching_external_httpclient_baseaddress()
+    {
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.Accepted)
+        {
+            Content = new StringContent("""{"jobId":"abc-123"}""", System.Text.Encoding.UTF8, "application/json"),
+        });
+
+        using var client = new BoomerangClient(new BoomerangClientOptions
+        {
+            BaseUrl = new Uri("http://localhost:8080"),
+            ApiPath = "/jobs",
+            Token = "test-token",
+            HttpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:8080/") },
+        });
+
+        var response = await client.TriggerAsync(new BoomerangTriggerRequest { CallbackUrl = "https://ex.com/h" });
+        Assert.Equal("abc-123", response.JobId);
+    }
+
+    [Fact]
     public async Task TriggerAsync_maps_202_to_response()
     {
         var handler = new StubHandler(_ =>
