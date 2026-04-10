@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Boomerang.Client" Version="0.1.0" />
-    <PackageReference Include="Boomerang.Client.AspNetCore" Version="0.1.0" />
+    <PackageReference Include="Boomerang.Client" Version="1.0.0" />
+    <PackageReference Include="Boomerang.Client.AspNetCore" Version="1.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
   </ItemGroup>
 

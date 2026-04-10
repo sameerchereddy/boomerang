@@ -8,7 +8,7 @@
     <AssemblyName>Boomerang.Client</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
     <Authors>sameerchereddy</Authors>
     <Description>Thin HTTP client for the Boomerang async job API (trigger, poll, HMAC helpers). Does not issue credentials.</Description>
     <PackageId>Boomerang.Client</PackageId>
