@@ -1,0 +1,35 @@
+name: Publish Python SDK
+
+on:
+  push:
+    tags:
+      - 'python-v*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: boomerang-python
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Strip tag prefix to get version
+        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME#python-v}" >> $GITHUB_ENV
+
+      - name: Set version
+        run: sed -i "s/^version = .*/version = \"${{ env.RELEASE_VERSION }}\"/" pyproject.toml
+
+      - name: Build
+        run: pip install hatch && hatch build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: boomerang-python/dist/
