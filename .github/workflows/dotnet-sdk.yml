@@ -9,6 +9,8 @@ on:
     paths:
       - 'boomerang-dotnet/**'
       - '.github/workflows/dotnet-sdk.yml'
+  release:
+    types: [published]
   workflow_dispatch:
 
 concurrency:
@@ -67,6 +69,44 @@ jobs:
           name: boomerang-nuget-packages
           path: artifacts/*.nupkg
           if-no-files-found: error
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.event_name == 'release' && github.event.action == 'published'
+    defaults:
+      run:
+        working-directory: boomerang-dotnet
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('boomerang-dotnet/**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore and build
+        run: |
+          dotnet restore src/Boomerang.Client/Boomerang.Client.csproj
+          dotnet restore src/Boomerang.Client.AspNetCore/Boomerang.Client.AspNetCore.csproj
+          dotnet build src/Boomerang.Client/Boomerang.Client.csproj -c Release --no-restore
+          dotnet build src/Boomerang.Client.AspNetCore/Boomerang.Client.AspNetCore.csproj -c Release --no-restore
+
+      - name: Pack
+        run: |
+          mkdir -p ../artifacts
+          dotnet pack src/Boomerang.Client/Boomerang.Client.csproj -c Release -o ../artifacts --no-build
+          dotnet pack src/Boomerang.Client.AspNetCore/Boomerang.Client.AspNetCore.csproj -c Release -o ../artifacts --no-build
+
+      - name: Publish to NuGet.org
+        run: dotnet nuget push ../artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   integration-test:
     runs-on: ubuntu-latest
