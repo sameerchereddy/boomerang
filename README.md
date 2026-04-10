@@ -3,6 +3,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.sameerchereddy/boomerang-starter?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.sameerchereddy/boomerang-starter)
 [![npm](https://img.shields.io/npm/v/@sameerchereddy/boomerang-client?label=npm)](https://www.npmjs.com/package/@sameerchereddy/boomerang-client)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sameerchereddy/boomerang-go@v1.0.1.svg)](https://pkg.go.dev/github.com/sameerchereddy/boomerang-go@v1.0.1)
+[![PyPI](https://img.shields.io/pypi/v/boomerang-python?label=PyPI)](https://pypi.org/project/boomerang-python/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Changelog](https://img.shields.io/badge/changelog-CHANGELOG.md-informational)](CHANGELOG.md)
 
@@ -290,6 +291,20 @@ See [`boomerang-node/README.md`](boomerang-node/README.md) for full documentatio
 
 ---
 
+### Python — `boomerang-python`
+
+[![PyPI](https://img.shields.io/pypi/v/boomerang-python)](https://pypi.org/project/boomerang-python/)
+
+Built by [@sudheerr48](https://github.com/sudheerr48).
+
+```bash
+pip install boomerang-python
+```
+
+See [`boomerang-python/README.md`](boomerang-python/README.md) for full documentation.
+
+---
+
 ## Modules
 
 | Module | Purpose |
@@ -300,6 +315,7 @@ See [`boomerang-node/README.md`](boomerang-node/README.md) for full documentatio
 | [`boomerang-sample`](boomerang-sample) | Runnable sample application |
 | [`boomerang-tests`](boomerang-tests) | Integration test base class for consumers |
 | [`boomerang-node`](boomerang-node) | Node.js SDK — `@sameerchereddy/boomerang-client` |
+| [`boomerang-python`](boomerang-python) | Python SDK — `boomerang-python` |
 
 ---
 
