@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Boomerang.Client.Exceptions;
 
 /// <summary>
@@ -9,7 +11,7 @@ public sealed class BoomerangConflictException : BoomerangApiException
     public long? RetryAfterSeconds { get; }
 
     public BoomerangConflictException(string? responseBody, long? retryAfterSeconds)
-        : base(409, responseBody, "Conflict (409): job already in progress or recently completed.")
+        : base(HttpStatusCode.Conflict, responseBody, "Conflict (409): job already in progress or recently completed.")
     {
         RetryAfterSeconds = retryAfterSeconds;
     }

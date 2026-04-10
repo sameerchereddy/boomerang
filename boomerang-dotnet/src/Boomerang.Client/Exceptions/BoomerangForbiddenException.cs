@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Boomerang.Client.Exceptions;
 
 /// <summary>
@@ -6,5 +8,5 @@ namespace Boomerang.Client.Exceptions;
 public sealed class BoomerangForbiddenException : BoomerangApiException
 {
     public BoomerangForbiddenException(string? responseBody)
-        : base(403, responseBody, "Request forbidden (403).") { }
+        : base(HttpStatusCode.Forbidden, responseBody, "Request forbidden (403).") { }
 }

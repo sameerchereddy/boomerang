@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Boomerang.Client.Exceptions;
 
 /// <summary>
@@ -6,13 +8,13 @@ namespace Boomerang.Client.Exceptions;
 public class BoomerangApiException : Exception
 {
     /// <summary>HTTP status code returned by the server.</summary>
-    public int StatusCode { get; }
+    public HttpStatusCode StatusCode { get; }
 
     /// <summary>Raw response body, if any.</summary>
     public string? ResponseBody { get; }
 
-    public BoomerangApiException(int statusCode, string? responseBody, string? message = null)
-        : base(message ?? $"Boomerang API returned HTTP {statusCode}.")
+    public BoomerangApiException(HttpStatusCode statusCode, string? responseBody, string? message = null)
+        : base(message ?? $"Boomerang API returned HTTP {(int)statusCode}.")
     {
         StatusCode = statusCode;
         ResponseBody = responseBody;

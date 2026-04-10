@@ -9,10 +9,13 @@ namespace Boomerang.Client.AspNetCore;
 /// </summary>
 /// <remarks>
 /// Set either <see cref="Secret"/> (not recommended for production) or <see cref="SecretEnvironmentVariable"/>.
+/// The resolved secret is cached at first use — changes to the environment variable after app start are not picked up.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class BoomerangWebhookAttribute : Attribute, IFilterFactory
 {
+    private string? _resolvedSecret;
+
     /// <summary>Raw shared secret (same as enqueue <c>callbackSecret</c>). Prefer env-based configuration.</summary>
     public string? Secret { get; init; }
 
@@ -23,19 +26,24 @@ public sealed class BoomerangWebhookAttribute : Attribute, IFilterFactory
     public string PayloadParameterName { get; init; } = "payload";
 
     /// <inheritdoc />
-    public bool IsReusable => false;
+    /// <remarks>The filter is stateless and safe to reuse across requests.</remarks>
+    public bool IsReusable => true;
 
     /// <inheritdoc />
     public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
     {
-        var secret = Secret;
-        if (string.IsNullOrEmpty(secret) && !string.IsNullOrEmpty(SecretEnvironmentVariable))
-            secret = Environment.GetEnvironmentVariable(SecretEnvironmentVariable);
-        if (string.IsNullOrEmpty(secret))
-            throw new InvalidOperationException(
-                "Boomerang webhook: set Secret or SecretEnvironmentVariable on [BoomerangWebhook].");
+        if (_resolvedSecret == null)
+        {
+            var secret = Secret;
+            if (string.IsNullOrEmpty(secret) && !string.IsNullOrEmpty(SecretEnvironmentVariable))
+                secret = Environment.GetEnvironmentVariable(SecretEnvironmentVariable);
+            if (string.IsNullOrEmpty(secret))
+                throw new InvalidOperationException(
+                    "Boomerang webhook: set Secret or SecretEnvironmentVariable on [BoomerangWebhook].");
+            _resolvedSecret = secret;
+        }
 
         return ActivatorUtilities.CreateInstance<BoomerangWebhookFilter>(
-            serviceProvider, secret, PayloadParameterName);
+            serviceProvider, _resolvedSecret, PayloadParameterName);
     }
 }

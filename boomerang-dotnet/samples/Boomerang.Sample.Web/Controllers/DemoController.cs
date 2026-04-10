@@ -205,7 +205,7 @@ public sealed class DemoController : ControllerBase
     {
         if (ex is BoomerangConflictException c)
         {
-            return StatusCode(ex.StatusCode, new
+            return StatusCode((int)ex.StatusCode, new
             {
                 error = ex.Message,
                 boomerangResponseBody = ex.ResponseBody,
@@ -213,7 +213,7 @@ public sealed class DemoController : ControllerBase
             });
         }
 
-        return StatusCode(ex.StatusCode, new
+        return StatusCode((int)ex.StatusCode, new
         {
             error = ex.Message,
             boomerangResponseBody = ex.ResponseBody,

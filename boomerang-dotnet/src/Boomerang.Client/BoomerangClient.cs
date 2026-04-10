@@ -95,16 +95,15 @@ public sealed class BoomerangClient : IDisposable
             return;
 
         var body = response.Content == null ? null : await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        var code = (int)response.StatusCode;
 
-        throw code switch
+        throw response.StatusCode switch
         {
-            (int)HttpStatusCode.Unauthorized => new BoomerangUnauthorizedException(body),
-            (int)HttpStatusCode.Forbidden => new BoomerangForbiddenException(body),
-            (int)HttpStatusCode.NotFound => new BoomerangNotFoundException(body),
-            (int)HttpStatusCode.Conflict => ParseConflict(body),
-            (int)HttpStatusCode.ServiceUnavailable => new BoomerangServiceUnavailableException(body),
-            _ => new BoomerangApiException(code, body),
+            HttpStatusCode.Unauthorized => new BoomerangUnauthorizedException(body),
+            HttpStatusCode.Forbidden => new BoomerangForbiddenException(body),
+            HttpStatusCode.NotFound => new BoomerangNotFoundException(body),
+            HttpStatusCode.Conflict => ParseConflict(body),
+            HttpStatusCode.ServiceUnavailable => new BoomerangServiceUnavailableException(body),
+            _ => new BoomerangApiException(response.StatusCode, body),
         };
     }
 
@@ -139,7 +138,7 @@ public sealed class BoomerangClient : IDisposable
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         var result = await JsonSerializer.DeserializeAsync<BoomerangTriggerResponse>(stream, BoomerangJson.SerializerOptions, cancellationToken).ConfigureAwait(false);
         if (result?.JobId == null)
-            throw new BoomerangApiException((int)response.StatusCode, null, "Expected 202 body with jobId.");
+            throw new BoomerangApiException(response.StatusCode, null, "Expected 202 body with jobId.");
         return result;
     }
 
@@ -154,7 +153,7 @@ public sealed class BoomerangClient : IDisposable
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         var result = await JsonSerializer.DeserializeAsync<BoomerangJobStatusResponse>(stream, BoomerangJson.SerializerOptions, cancellationToken).ConfigureAwait(false);
         if (result == null)
-            throw new BoomerangApiException((int)response.StatusCode, null, "Empty poll response.");
+            throw new BoomerangApiException(response.StatusCode, null, "Empty poll response.");
         return result;
     }
 

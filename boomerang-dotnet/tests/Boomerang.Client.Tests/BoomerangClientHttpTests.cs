@@ -79,7 +79,7 @@ public class BoomerangClientHttpTests
         using var client = CreateClient(handler);
         var ex = await Assert.ThrowsAsync<BoomerangUnauthorizedException>(() =>
             client.TriggerAsync(new BoomerangTriggerRequest { CallbackUrl = "https://ex.com/h" }));
-        Assert.Equal(401, ex.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
     }
 
     [Fact]
@@ -101,6 +101,32 @@ public class BoomerangClientHttpTests
         var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.NotFound));
         using var client = CreateClient(handler);
         await Assert.ThrowsAsync<BoomerangNotFoundException>(() => client.PollAsync("jid"));
+    }
+
+    [Fact]
+    public async Task TriggerAsync_throws_forbidden_on_403()
+    {
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.Forbidden)
+        {
+            Content = new StringContent("""{"error":"callbackUrl not in allowlist"}"""),
+        });
+        using var client = CreateClient(handler);
+        var ex = await Assert.ThrowsAsync<BoomerangForbiddenException>(() =>
+            client.TriggerAsync(new BoomerangTriggerRequest { CallbackUrl = "https://ex.com/h" }));
+        Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
+    }
+
+    [Fact]
+    public async Task TriggerAsync_throws_service_unavailable_on_503()
+    {
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+        {
+            Content = new StringContent("""{"error":"worker pool saturated"}"""),
+        });
+        using var client = CreateClient(handler);
+        var ex = await Assert.ThrowsAsync<BoomerangServiceUnavailableException>(() =>
+            client.TriggerAsync(new BoomerangTriggerRequest { CallbackUrl = "https://ex.com/h" }));
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, ex.StatusCode);
     }
 
     private sealed class StubHandler : HttpMessageHandler

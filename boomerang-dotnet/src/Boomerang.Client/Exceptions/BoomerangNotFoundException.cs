@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Boomerang.Client.Exceptions;
 
 /// <summary>
@@ -6,5 +8,5 @@ namespace Boomerang.Client.Exceptions;
 public sealed class BoomerangNotFoundException : BoomerangApiException
 {
     public BoomerangNotFoundException(string? responseBody)
-        : base(404, responseBody, "Resource not found (404).") { }
+        : base(HttpStatusCode.NotFound, responseBody, "Resource not found (404).") { }
 }

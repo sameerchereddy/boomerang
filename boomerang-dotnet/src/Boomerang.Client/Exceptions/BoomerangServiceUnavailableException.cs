@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Boomerang.Client.Exceptions;
 
 /// <summary>
@@ -6,5 +8,5 @@ namespace Boomerang.Client.Exceptions;
 public sealed class BoomerangServiceUnavailableException : BoomerangApiException
 {
     public BoomerangServiceUnavailableException(string? responseBody)
-        : base(503, responseBody, "Service unavailable (503).") { }
+        : base(HttpStatusCode.ServiceUnavailable, responseBody, "Service unavailable (503).") { }
 }

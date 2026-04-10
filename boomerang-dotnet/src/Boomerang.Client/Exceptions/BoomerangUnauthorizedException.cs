@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Boomerang.Client.Exceptions;
 
 /// <summary>
@@ -6,5 +8,5 @@ namespace Boomerang.Client.Exceptions;
 public sealed class BoomerangUnauthorizedException : BoomerangApiException
 {
     public BoomerangUnauthorizedException(string? responseBody)
-        : base(401, responseBody, "Authentication failed (401).") { }
+        : base(HttpStatusCode.Unauthorized, responseBody, "Authentication failed (401).") { }
 }
