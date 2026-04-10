@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Boomerang.Client</RootNamespace>
+    <AssemblyName>Boomerang.Client</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Version>0.1.0</Version>
+    <Authors>sameerchereddy</Authors>
+    <Description>Thin HTTP client for the Boomerang async job API (trigger, poll, HMAC helpers). Does not issue credentials.</Description>
+    <PackageId>Boomerang.Client</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/sameerchereddy/boomerang</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/sameerchereddy/boomerang</PackageProjectUrl>
+    <Tags>boomerang;async;jobs;webhook</Tags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\README.md" />
+  </ItemGroup>
+
+</Project>

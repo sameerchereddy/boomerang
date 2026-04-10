@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boomerang sample dashboard</title>
+  <link rel="stylesheet" href="site.css" />
+</head>
+<body>
+  <div class="layout">
+    <div class="main">
+      <h1>Boomerang sample</h1>
+      <p class="sub">Trigger jobs, poll status, and inspect the last webhook callback.</p>
+
+      <div id="globalBanner" class="banner info hidden"></div>
+
+      <div class="toolbar">
+        <button type="button" id="btnAddJob" class="primary" disabled>Add job</button>
+        <span id="readyHint" class="sub" style="margin:0"></span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Job ID</th>
+            <th>Status</th>
+            <th>Last updated</th>
+            <th>Message</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="jobsBody"></tbody>
+      </table>
+    </div>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <h2>Webhook</h2>
+        <p>Boomerang POSTs job completion to your callback URL. When you set <code>callbackSecret</code> on enqueue, the request includes <code>X-Signature-SHA256</code>; the sample verifies it using the <strong>WEBHOOK_SECRET</strong> environment variable (must match the secret used when triggering).</p>
+        <div class="label">Default callback URL</div>
+        <div id="callbackUrlDisplay" class="mono">—</div>
+        <div class="label" style="margin-top:0.75rem">Secret configured (config/env)</div>
+        <div id="secretHint">—</div>
+
+        <div id="lastWebhookBox">
+          <div class="label">Last webhook received</div>
+          <pre id="lastWebhookPre" class="mono" style="margin:0.35rem 0 0;white-space:pre-wrap;word-break:break-word">None yet.</pre>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
