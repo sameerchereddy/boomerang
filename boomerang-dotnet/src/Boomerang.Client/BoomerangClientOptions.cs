@@ -8,8 +8,8 @@ public sealed class BoomerangClientOptions
     /// <summary>Base URL of the Boomerang deployment (e.g. <c>https://boomerang.example.com</c>).</summary>
     public Uri BaseUrl { get; init; } = null!;
 
-    /// <summary>API prefix (default <c>/jobs</c>). Must match server <c>boomerang.base-path</c>.</summary>
-    public string ApiPath { get; init; } = "/jobs";
+    /// <summary>API prefix (default <c>/sync</c>). Must match server <c>boomerang.base-path</c>.</summary>
+    public string ApiPath { get; init; } = "/sync";
 
     /// <summary>Static Bearer token. Ignored when <see cref="GetTokenAsync"/> is set.</summary>
     public string? Token { get; init; }

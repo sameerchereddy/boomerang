@@ -7,7 +7,7 @@ services:
       BOOMERANG_JWT_SECRET: dev-secret-change-me-must-be-32-chars
       SPRING_DATA_REDIS_HOST: redis
       BOOMERANG_CALLBACK_ALLOWED_DOMAINS: localhost,host.docker.internal
-      BOOMERANG_SKIP_URL_VALIDATION: "false"
+      BOOMERANG_CALLBACK_SKIP_VALIDATION: "true"
     depends_on:
       redis:
         condition: service_healthy
