@@ -6,6 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/boomerang-python?label=PyPI)](https://pypi.org/project/boomerang-python/)
 [![NuGet](https://img.shields.io/nuget/v/Boomerang.Client?label=NuGet)](https://www.nuget.org/packages/Boomerang.Client)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![GitHub Stars](https://img.shields.io/github/stars/sameerchereddy/boomerang?style=social)](https://github.com/sameerchereddy/boomerang/stargazers)
 
 Like a boomerang — you throw something out and it comes back to you.
 
@@ -26,6 +27,8 @@ Client → POST /jobs { callbackUrl }
 ```
 
 The server is a standalone Spring Boot service (or embeddable starter) backed by Redis. Thin SDKs in every language handle the HTTP calls — no queue logic, no Redis dependency on the client side.
+
+![Boomerang demo](.github/assets/demo.gif)
 
 ---
 
